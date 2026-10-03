@@ -8,8 +8,13 @@
       "type": "title",
       "durationSec": 4,
       "headline": "Every shipment starts with a quote.",
-      "subline": "LogiQuote — freight quoting, automated.",
-      "broll": { "query": "aerial truck highway sunset", "pick": 1 }
+      "subline": "LogiQuote \u2014 freight quoting, automated.",
+      "broll": {
+        "query": "aerial truck highway sunset",
+        "pick": 1,
+        "url": "https://assets.mixkit.co/videos/52010/52010-1080.mp4",
+        "page": "https://mixkit.co/free-stock-video/aerial-view-of-a-highway-crossing-with-transport-vehicles-moving-52010/"
+      }
     },
     {
       "id": "t2-inbox",
@@ -24,8 +29,16 @@
       "type": "end",
       "durationSec": 2.5,
       "headline": "Quotes in minutes, not days.",
-      "cta": { "text": "Book a demo", "url": "logiquote.app" },
-      "broll": { "query": "container port cranes aerial", "pick": 1 }
+      "cta": {
+        "text": "Book a demo",
+        "url": "logiquote.app"
+      },
+      "broll": {
+        "query": "container port cranes aerial",
+        "pick": 1,
+        "url": "https://assets.mixkit.co/videos/4012/4012-1080.mp4",
+        "page": "https://mixkit.co/free-stock-video/cranes-working-on-unloading-dock-4012/"
+      }
     }
   ]
 }

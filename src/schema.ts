@@ -20,8 +20,19 @@ export const sceneSchema = z.object({
       }),
     )
     .optional(),
-  /** Stock footage behind title/kinetic/end scenes (Pexels). `pick` = which downloaded candidate (1-3). */
-  broll: z.object({ query: z.string(), pick: z.number().int().min(1).default(1) }).optional(),
+  /**
+   * Stock footage behind title/kinetic/end scenes. `url` = direct mp4 link (no API key needed, e.g. Mixkit/Pexels download link);
+   * otherwise `query` is searched via Pixabay/Pexels and `pick` selects a downloaded candidate (1-3).
+   */
+  broll: z
+    .object({
+      query: z.string().optional(),
+      url: z.string().url().optional(),
+      page: z.string().url().optional(),
+      pick: z.number().int().min(1).default(1),
+    })
+    .refine((b) => b.query || b.url, "broll needs `query` or `url`")
+    .optional(),
   /** Generated still (Gemini image) for `still` scenes. */
   still: z.object({ prompt: z.string() }).optional(),
   /** Playwright flow name in pipeline/flows for `screen` scenes. */

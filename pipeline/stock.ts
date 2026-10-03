@@ -1,6 +1,7 @@
 /**
  * Downloads up to 3 b-roll candidates per scene → public/assets/broll/<scene>-<n>.mp4 (+ credits.json).
- * Uses Pixabay when PIXABAY_API_KEY is set, else Pexels (PEXELS_API_KEY). Without a key, scenes keep the route-map fallback.
+ * Scenes with `broll.url` download that file directly (no key). Otherwise searches Pixabay (PIXABAY_API_KEY) or Pexels (PEXELS_API_KEY);
+ * without either, those scenes keep the route-map fallback.
  */
 import { createWriteStream, existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -55,16 +56,17 @@ function pixabay(key: string): Provider {
   };
 }
 
+async function download(file: string, out: string) {
+  const dl = await fetch(file, { headers: { "User-Agent": "Mozilla/5.0" } });
+  if (!dl.ok || !dl.body) throw new Error(`download failed (${dl.status}) ${file}`);
+  await pipeline(Readable.fromWeb(dl.body as never), createWriteStream(out));
+}
+
 const provider = process.env.PIXABAY_API_KEY
   ? pixabay(process.env.PIXABAY_API_KEY)
   : process.env.PEXELS_API_KEY
     ? pexels(process.env.PEXELS_API_KEY)
     : null;
-if (!provider) {
-  console.warn("No PIXABAY_API_KEY or PEXELS_API_KEY: skipping b-roll download (scenes fall back to the animated route map).");
-  process.exit(0);
-}
-
 const sb = loadStoryboard();
 const only = arg("scene");
 const force = arg("force") === "true";
@@ -74,15 +76,27 @@ const credits = existsSync(creditsPath) ? JSON.parse(readFileSync(creditsPath, "
 
 for (const scene of sb.scenes) {
   if (!scene.broll || (only && scene.id !== only)) continue;
+  if (scene.broll.url) {
+    const name = `${scene.id}-${scene.broll.pick}`;
+    const out = join(dir, `${name}.mp4`);
+    if (!existsSync(out) || force) {
+      await download(scene.broll.url, out);
+      console.log(`✓ ${name}  ${scene.broll.url}`);
+    }
+    credits.broll[name] = { source: new URL(scene.broll.url).hostname, page: scene.broll.page ?? scene.broll.url };
+    continue;
+  }
+  if (!provider || !scene.broll.query) {
+    console.warn(`! ${scene.id}: no broll.url and no PIXABAY_API_KEY/PEXELS_API_KEY; keeping the route-map fallback.`);
+    continue;
+  }
   const picks = (await provider.search(scene.broll.query, scene.durationSec + 1)).slice(0, 3);
   if (!picks.length) console.warn(`! ${scene.id}: no ≥1080p ${provider.name} clips ≥${scene.durationSec}s for "${scene.broll.query}"`);
   for (const [i, c] of picks.entries()) {
     const name = `${scene.id}-${i + 1}`;
     const out = join(dir, `${name}.mp4`);
     if (existsSync(out) && !force) continue;
-    const dl = await fetch(c.file);
-    if (!dl.ok || !dl.body) throw new Error(`download failed ${c.file}`);
-    await pipeline(Readable.fromWeb(dl.body as never), createWriteStream(out));
+    await download(c.file, out);
     credits.broll[name] = { source: provider.name, page: c.page, author: c.author, authorUrl: c.authorUrl };
     console.log(`✓ ${name}  ${c.page}`);
   }
