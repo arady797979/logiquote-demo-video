@@ -6,7 +6,7 @@ import { spawn, type ChildProcess } from "node:child_process";
 import { existsSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { chromium, type Locator, type Page } from "playwright";
+import { chromium, type BrowserContext, type Locator, type Page } from "playwright";
 import type { ScreenEvent } from "../src/schema.js";
 import { flows } from "./flows/index.js";
 import type { ActOpts, Actor, FlowEnv, RawEvent } from "./flows/types.js";
@@ -162,12 +162,13 @@ async function recordFlow(name: string, env: FlowEnv) {
       "--disable-infobars", "--no-first-run", "--no-default-browser-check", "--disable-features=Translate,MediaRouter", "--disable-notifications"],
   });
   try {
+    await guardMutations(context, env.allowMutations);
     await context.addInitScript(CURSOR_SCRIPT);
     await context.addInitScript(HIDE_DEV_OVERLAY_SCRIPT);
     const page = context.pages()[0] ?? (await context.newPage());
     const path = await flow.start(page, env);
     await page.goto(env.baseUrl + path, { waitUntil: "networkidle" }).catch(() => page.goto(env.baseUrl + path));
-    await flow.ready(page);
+    await flow.ready(page, env);
     await page.mouse.move((W / 2) / ZOOM, (H / 2) / ZOOM);
     await sleep(1200);
 
@@ -189,6 +190,22 @@ async function recordFlow(name: string, env: FlowEnv) {
     await context.close();
     rmSync(userDataDir, { recursive: true, force: true });
   }
+}
+
+/** tRPC mutations that only read or are needed for the story (Copilot chat). Everything else is blocked unless DEMO_ALLOW_MUTATIONS=true. */
+const SAFE_MUTATIONS = new Set(["copilot.chat", "conversation.markRead", "sourcing.runCandidates"]);
+
+async function guardMutations(context: BrowserContext, allow: boolean) {
+  if (allow) return;
+  await context.route("**/api/trpc/**", (route) => {
+    const req = route.request();
+    if (req.method() !== "POST") return route.continue();
+    const procs = decodeURIComponent(new URL(req.url()).pathname.split("/api/trpc/")[1] ?? "").split(",");
+    const blocked = procs.filter((p) => !SAFE_MUTATIONS.has(p));
+    if (!blocked.length) return route.continue();
+    console.warn(`! blocked mutation ${blocked.join(", ")} (set DEMO_ALLOW_MUTATIONS=true on a disposable DB to allow)`);
+    return route.abort();
+  });
 }
 
 const baseUrl = requireEnv("DEMO_URL").replace(/\/$/, "");

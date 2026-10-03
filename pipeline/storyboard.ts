@@ -37,7 +37,7 @@ const scene = {
 const prompt = `You write storyboards for a ${targetSec}-second B2B SaaS product video for LogiQuote. There is NO voiceover: on-screen captions and kinetic text carry the story.
 Rules: scene durations sum to ${targetSec + 0.5 * 8}s (0.5s crossfades overlap); hook in the first 4s; exactly one CTA in the final "end" scene;
 "screen" scenes must use one of these Playwright flows: ${flows.join(", ")}; captions ≤ 16 words; only claim features that appear in the plan below;
-broll.query = short Pexels search (e.g. "aerial truck highway sunset"); still.prompt = abstract brand visual, no text.
+broll.query = short stock-footage search (e.g. "aerial truck highway sunset"); still.prompt = abstract brand visual, no text.
 
 PLAN:
 ${plan}`;

@@ -12,13 +12,13 @@
     "render:vertical": "npm run manifest && remotion render Demo9x16 out/logiquote_demo_vertical.mp4 --codec h264 --crf 18 --enforce-audio-track && tsx pipeline/finalize.ts out/logiquote_demo_vertical.mp4",
     "render:test": "npm run manifest && remotion render Test12s out/logiquote_test12s.mp4 --codec h264 --crf 18 --enforce-audio-track && tsx pipeline/finalize.ts out/logiquote_test12s.mp4",
     "test12": "npm run record -- --storyboard storyboard.test.json && npm run stock -- --storyboard storyboard.test.json && npm run render:test",
-    "all": "npm run record && npm run stock && npm run stills && npm run render && npm run render:vertical",
     "check": "tsc --noEmit",
     "demo:up": "docker compose -f demo-env/docker-compose.yml up -d --wait",
     "demo:schema": "drizzle-kit push --config demo-env/drizzle.config.ts --force",
     "demo:seed": "docker compose -f demo-env/docker-compose.yml exec -T postgres psql -U demo -d logiquote_demo -v ON_ERROR_STOP=1 -q < demo-env/seed.sql",
     "demo:worker": "node demo-env/mock-worker.mjs",
-    "demo:down": "docker compose -f demo-env/docker-compose.yml down -v"
+    "demo:down": "docker compose -f demo-env/docker-compose.yml down -v",
+    "full": "npm run record && npm run stock && npm run stills && npm run render && npm run render:vertical"
   },
   "description": "Standalone demo-video pipeline for LogiQuote (not part of the app build/deploy)",
   "dependencies": {

@@ -8,7 +8,14 @@ export const inbox: Flow = {
     env.threadId = id;
     return "/inbox";
   },
-  async ready(page) {
+  async ready(page, env) {
+    // Warm-up off camera: open the thread once via client-side navigation so the case is cached,
+    // then go back. The recorded click then renders instantly instead of flashing "Loading case…".
+    const open = page.locator(`a[href="${threadPath(env.threadId!)}"]`).first();
+    await open.click();
+    await page.getByRole("button", { name: "Extracted", exact: true }).waitFor();
+    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.goBack();
     await page.getByRole("link", { name: "Open", exact: true }).first().waitFor();
   },
   async run(page, act, env) {

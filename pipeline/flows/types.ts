@@ -18,7 +18,7 @@ export type Flow = {
   /** Resolve the start URL path (may browse the app first, before recording starts). */
   start(page: Page, env: FlowEnv): Promise<string>;
   /** Wait until the start page is fully rendered. */
-  ready(page: Page): Promise<void>;
+  ready(page: Page, env: FlowEnv): Promise<void>;
   run(page: Page, act: Actor, env: FlowEnv): Promise<void>;
 };
 
