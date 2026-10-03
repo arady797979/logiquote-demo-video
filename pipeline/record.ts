@@ -3,7 +3,8 @@
  * Writes public/assets/screen/<flow>.mp4 and <flow>.events.json (click/type/focus boxes for auto-zoom).
  */
 import { spawn, type ChildProcess } from "node:child_process";
-import { existsSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { chromium, type Locator, type Page } from "playwright";
 import type { ScreenEvent } from "../src/schema.js";
@@ -17,6 +18,15 @@ const DISPLAY = process.env.RECORD_DISPLAY ?? ":99";
 const ZOOM = Number(process.env.RECORD_ZOOM ?? 1.25);
 const outDir = ensureDir(join(ASSETS, "screen"));
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/** Hide the Next.js dev-mode indicator when recording against `next dev`. */
+const HIDE_DEV_OVERLAY_SCRIPT = `
+(() => {
+  const s = document.createElement('style');
+  s.textContent = 'nextjs-portal, [data-nextjs-toast], #__next-build-watcher { display: none !important; }';
+  (document.head || document.documentElement).appendChild(s);
+})();
+`;
 
 /** In-page cursor (x11grab can't see Playwright's synthetic pointer). */
 const CURSOR_SCRIPT = `
@@ -139,17 +149,22 @@ function startFfmpeg(out: string) {
 async function recordFlow(name: string, env: FlowEnv) {
   const flow = flows[name];
   if (!flow) throw new Error(`Unknown flow "${name}". Available: ${Object.keys(flows).join(", ")}`);
-  const browser = await chromium.launch({
+  // Persistent context so the kiosk window Chromium opens at launch is the one we drive and record.
+  // Window size is in DIPs, so divide by the scale factor to fill the WxH display exactly.
+  const userDataDir = mkdtempSync(join(tmpdir(), "lq-rec-"));
+  const context = await chromium.launchPersistentContext(userDataDir, {
     headless: false,
+    viewport: null,
+    colorScheme: "dark",
     env: { ...process.env, DISPLAY },
     ignoreDefaultArgs: ["--enable-automation"],
-    args: [`--window-size=${W},${H}`, "--window-position=0,0", "--kiosk", `--force-device-scale-factor=${ZOOM}`, "--hide-scrollbars",
+    args: [`--window-size=${Math.round(W / ZOOM)},${Math.round(H / ZOOM)}`, "--window-position=0,0", "--kiosk", `--force-device-scale-factor=${ZOOM}`, "--hide-scrollbars",
       "--disable-infobars", "--no-first-run", "--no-default-browser-check", "--disable-features=Translate,MediaRouter", "--disable-notifications"],
   });
   try {
-    const context = await browser.newContext({ viewport: null, colorScheme: "dark" });
     await context.addInitScript(CURSOR_SCRIPT);
-    const page = await context.newPage();
+    await context.addInitScript(HIDE_DEV_OVERLAY_SCRIPT);
+    const page = context.pages()[0] ?? (await context.newPage());
     const path = await flow.start(page, env);
     await page.goto(env.baseUrl + path, { waitUntil: "networkidle" }).catch(() => page.goto(env.baseUrl + path));
     await flow.ready(page);
@@ -171,7 +186,8 @@ async function recordFlow(name: string, env: FlowEnv) {
     writeFileSync(join(outDir, `${name}.events.json`), JSON.stringify(events, null, 2));
     console.log(`✓ ${name}.mp4  ${duration.toFixed(1)}s, ${events.length} events`);
   } finally {
-    await browser.close();
+    await context.close();
+    rmSync(userDataDir, { recursive: true, force: true });
   }
 }
 

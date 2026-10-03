@@ -3,12 +3,16 @@ import { createWriteStream, existsSync, readFileSync, writeFileSync } from "node
 import { join } from "node:path";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
-import { ASSETS, arg, ensureDir, loadStoryboard, requireEnv } from "./lib/common.js";
+import { ASSETS, arg, ensureDir, loadStoryboard } from "./lib/common.js";
 
 type PexelsFile = { link: string; width: number; height: number; file_type: string };
 type PexelsVideo = { id: number; url: string; duration: number; width: number; user: { name: string; url: string }; video_files: PexelsFile[] };
 
-const key = requireEnv("PEXELS_API_KEY");
+const key = process.env.PEXELS_API_KEY ?? "";
+if (!key) {
+  console.warn("PEXELS_API_KEY not set: skipping b-roll download (scenes fall back to the animated route map).");
+  process.exit(0);
+}
 const sb = loadStoryboard();
 const only = arg("scene");
 const force = arg("force") === "true";
