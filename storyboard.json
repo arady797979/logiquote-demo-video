@@ -1,0 +1,82 @@
+{
+  "title": "LogiQuote product demo",
+  "fps": 30,
+  "transitionSec": 0.5,
+  "scenes": [
+    {
+      "id": "s1-hook",
+      "type": "title",
+      "durationSec": 5,
+      "headline": "Every shipment starts with a quote.",
+      "broll": { "query": "aerial truck highway sunset", "pick": 1 }
+    },
+    {
+      "id": "s2-problem",
+      "type": "kinetic",
+      "durationSec": 8,
+      "lines": ["RFQs buried in inboxes.", "Spreadsheets.", "Days of back-and-forth."],
+      "caption": "Getting one still means emails, spreadsheets and days of waiting.",
+      "broll": { "query": "busy warehouse logistics office", "pick": 1 }
+    },
+    {
+      "id": "s3-reveal",
+      "type": "still",
+      "durationSec": 4.5,
+      "headline": "Meet LogiQuote",
+      "subline": "Your freight quoting command center",
+      "still": { "prompt": "Dark navy abstract map of North America with glowing emerald freight route lines connecting cities, minimal, premium SaaS aesthetic, no text, 16:9" }
+    },
+    {
+      "id": "s4-inbox",
+      "type": "screen",
+      "durationSec": 12,
+      "flow": "inbox",
+      "lowerThird": "One thread = one case",
+      "caption": "Every RFQ email becomes a structured case: lane, equipment, weight and dates extracted for you."
+    },
+    {
+      "id": "s5-quote",
+      "type": "screen",
+      "durationSec": 12,
+      "flow": "quote",
+      "lowerThird": "Deterministic pricing",
+      "caption": "Rates come from a deterministic waterfall, and margin rules decide what needs your approval."
+    },
+    {
+      "id": "s6-copilot",
+      "type": "screen",
+      "durationSec": 11,
+      "flow": "copilot",
+      "lowerThird": "Quote Copilot",
+      "caption": "Ask Quote Copilot about any lane: same engine, same audit trail."
+    },
+    {
+      "id": "s7-sourcing",
+      "type": "screen",
+      "durationSec": 8,
+      "flow": "sourcing",
+      "lowerThird": "Carrier sourcing",
+      "caption": "Match qualified carriers for every lane from your own vendor registry."
+    },
+    {
+      "id": "s8-stats",
+      "type": "stats",
+      "durationSec": 8,
+      "headline": "LLMs interpret. Deterministic systems decide.",
+      "stats": [
+        { "value": 100, "suffix": "%", "label": "of decisions audited" },
+        { "value": 0, "label": "invented rates" },
+        { "value": 1, "label": "inbox for every RFQ" }
+      ],
+      "still": { "prompt": "Abstract dark navy background with flowing emerald data streams and soft bokeh, minimal, no text, 16:9" }
+    },
+    {
+      "id": "s9-end",
+      "type": "end",
+      "durationSec": 9,
+      "headline": "Quotes in minutes, not days.",
+      "cta": { "text": "Book a demo", "url": "logiquote.app" },
+      "broll": { "query": "container port cranes aerial", "pick": 1 }
+    }
+  ]
+}

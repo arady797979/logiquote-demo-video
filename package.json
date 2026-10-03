@@ -1,0 +1,43 @@
+{
+  "name": "logiquote-demo-video",
+  "version": "1.0.0",
+  "scripts": {
+    "storyboard": "tsx pipeline/storyboard.ts",
+    "record": "tsx pipeline/record.ts",
+    "stock": "tsx pipeline/stock.ts",
+    "stills": "tsx pipeline/stills.ts",
+    "manifest": "tsx pipeline/manifest.ts",
+    "studio": "npm run manifest && remotion studio",
+    "render": "npm run manifest && remotion render Demo16x9 out/logiquote_demo.mp4 --codec h264 --crf 18",
+    "render:vertical": "npm run manifest && remotion render Demo9x16 out/logiquote_demo_vertical.mp4 --codec h264 --crf 18",
+    "render:test": "npm run manifest && remotion render Test12s out/logiquote_test12s.mp4 --codec h264 --crf 18",
+    "test12": "npm run record -- --storyboard storyboard.test.json && npm run stock -- --storyboard storyboard.test.json && npm run render:test",
+    "all": "npm run record && npm run stock && npm run stills && npm run render && npm run render:vertical",
+    "check": "tsc --noEmit"
+  },
+  "description": "Standalone demo-video pipeline for LogiQuote (not part of the app build/deploy)",
+  "dependencies": {
+    "@remotion/cli": "4.0.532",
+    "@remotion/google-fonts": "4.0.532",
+    "@remotion/media-utils": "4.0.532",
+    "@remotion/transitions": "4.0.532",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "remotion": "4.0.532",
+    "zod": "4.5.4"
+  },
+  "devDependencies": {
+    "@google/genai": "^2.27.0",
+    "@types/node": "^20.19.43",
+    "@types/react": "^19.3.0",
+    "dotenv": "^18.0.5",
+    "playwright": "^1.63.0",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3"
+  },
+  "private": "true",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  }
+}

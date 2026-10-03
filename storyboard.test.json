@@ -1,0 +1,31 @@
+{
+  "title": "LogiQuote 12s test",
+  "fps": 30,
+  "transitionSec": 0.5,
+  "scenes": [
+    {
+      "id": "t1-hook",
+      "type": "title",
+      "durationSec": 4,
+      "headline": "Every shipment starts with a quote.",
+      "subline": "LogiQuote — freight quoting, automated.",
+      "broll": { "query": "aerial truck highway sunset", "pick": 1 }
+    },
+    {
+      "id": "t2-inbox",
+      "type": "screen",
+      "durationSec": 6.5,
+      "flow": "inbox",
+      "lowerThird": "RFQ inbox + agent sidecar",
+      "caption": "RFQ emails become structured cases, priced and ready to approve."
+    },
+    {
+      "id": "t3-end",
+      "type": "end",
+      "durationSec": 2.5,
+      "headline": "Quotes in minutes, not days.",
+      "cta": { "text": "Book a demo", "url": "logiquote.app" },
+      "broll": { "query": "container port cranes aerial", "pick": 1 }
+    }
+  ]
+}

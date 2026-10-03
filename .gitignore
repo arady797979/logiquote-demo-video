@@ -1,0 +1,7 @@
+node_modules/
+.env
+out/
+public/assets/*
+!public/assets/brand/
+!public/assets/music/README.md
+*.log
