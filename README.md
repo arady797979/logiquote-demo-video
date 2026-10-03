@@ -10,7 +10,7 @@ Node 20+, ffmpeg, Xvfb, Docker, and `npx playwright install chromium`.
 
 ```bash
 cp .env.example .env              # set DEMO_URL / DEMO_THREAD_ID
-npm run test12                    # record → stock (skipped without PEXELS_API_KEY) → render
+npm run test12                    # record → stock (skipped without PIXABAY_API_KEY or PEXELS_API_KEY) → render
 # → out/logiquote_test12s.mp4
 ```
 
